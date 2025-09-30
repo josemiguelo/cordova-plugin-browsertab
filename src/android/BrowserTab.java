@@ -76,30 +76,16 @@ public class BrowserTab extends CordovaPlugin {
   }
 
   private String findCustomTabBrowser() {
-        Log.d(LOG_TAG, "finding custom tab browser...");
         PackageManager pm = cordova.getActivity().getPackageManager();
         Intent serviceIntent = new Intent(CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION);
 
         List<ResolveInfo> resolvedServiceList = pm.queryIntentServices(serviceIntent, 0);
         if (resolvedServiceList == null || resolvedServiceList.isEmpty()) {
-            Log.d(LOG_TAG, "service list is empty");
             return null;
-        }
-
-        for (ResolveInfo info : resolvedServiceList) {
-            if (info.activityInfo != null) {
-                Log.d(LOG_TAG, "app: " + info.activityInfo.packageName);
-            } else {
-                Log.d(LOG_TAG, "no activity info");
-            }
         }
 
         ResolveInfo resolved = resolvedServiceList.get(0);
-        if (resolved == null) {
-            return null;
-        }
-
-        if (resolved.serviceInfo == null) {
+        if (resolved == null || resolved.serviceInfo == null) {
             return null;
         }
 
@@ -153,71 +139,4 @@ public class BrowserTab extends CordovaPlugin {
     Log.d(LOG_TAG, "in app browser call dispatched");
     callbackContext.success();
   }
-
-  /*
-  private String findCustomTabBrowser() {
-    if (mFindCalled) {
-      return mCustomTabsBrowser;
-    }
-
-    PackageManager pm = cordova.getActivity().getPackageManager();
-    Intent webIntent = new Intent(
-        Intent.ACTION_VIEW,
-        Uri.parse("http://www.example.com"));
-    List<ResolveInfo> resolvedActivityList =
-        pm.queryIntentActivities(webIntent, PackageManager.GET_RESOLVED_FILTER);
-
-    for (ResolveInfo info : resolvedActivityList) {
-      if (!isFullBrowser(info)) {
-        continue;
-      }
-
-      if (hasCustomTabWarmupService(pm, info.activityInfo.packageName)) {
-        mCustomTabsBrowser = info.activityInfo.packageName;
-        break;
-      }
-    }
-
-    mFindCalled = true;
-    return mCustomTabsBrowser;
-  }
-
-  private boolean isFullBrowser(ResolveInfo resolveInfo) {
-    // The filter must match ACTION_VIEW, CATEGORY_BROWSEABLE, and at least one scheme,
-    if (!resolveInfo.filter.hasAction(Intent.ACTION_VIEW)
-            || !resolveInfo.filter.hasCategory(Intent.CATEGORY_BROWSABLE)
-            || resolveInfo.filter.schemesIterator() == null) {
-        return false;
-    }
-
-    // The filter must not be restricted to any particular set of authorities
-    if (resolveInfo.filter.authoritiesIterator() != null) {
-        return false;
-    }
-
-    // The filter must support both HTTP and HTTPS.
-    boolean supportsHttp = false;
-    boolean supportsHttps = false;
-    Iterator<String> schemeIter = resolveInfo.filter.schemesIterator();
-    while (schemeIter.hasNext()) {
-        String scheme = schemeIter.next();
-        supportsHttp |= "http".equals(scheme);
-        supportsHttps |= "https".equals(scheme);
-
-        if (supportsHttp && supportsHttps) {
-            return true;
-        }
-    }
-
-    // at least one of HTTP or HTTPS is not supported
-    return false;
-  }
-
-  private boolean hasCustomTabWarmupService(PackageManager pm, String packageName) {
-    Intent serviceIntent = new Intent();
-    serviceIntent.setAction(ACTION_CUSTOM_TABS_CONNECTION);
-    serviceIntent.setPackage(packageName);
-    return (pm.resolveService(serviceIntent, 0) != null);
-  }
-  */
 }
