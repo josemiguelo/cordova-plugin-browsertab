@@ -50,11 +50,6 @@ public class BrowserTab extends CordovaPlugin {
 
   private Color colorParser = new Color();
 
-  /**
-   * The service we expect to find on a web browser that indicates it supports custom tabs.
-   */
-  // private static final String ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService";
-
   private boolean mFindCalled = false;
   private String mCustomTabsBrowser;
 
