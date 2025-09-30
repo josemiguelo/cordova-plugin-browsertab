@@ -17,6 +17,7 @@ package com.google.cordova.plugin.browsertab;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.support.customtabs.CustomTabsService;
 import android.net.Uri;
 import androidx.browser.customtabs.CustomTabsIntent;
 import android.util.Log;
@@ -52,8 +53,7 @@ public class BrowserTab extends CordovaPlugin {
   /**
    * The service we expect to find on a web browser that indicates it supports custom tabs.
    */
-  private static final String ACTION_CUSTOM_TABS_CONNECTION =
-          "android.support.customtabs.action.CustomTabsService";
+  // private static final String ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService";
 
   private boolean mFindCalled = false;
   private String mCustomTabsBrowser;
@@ -75,9 +75,41 @@ public class BrowserTab extends CordovaPlugin {
     return true;
   }
 
+  private String findCustomTabBrowser() {
+        Log.d(LOG_TAG, "finding custom tab browser...");
+        PackageManager pm = cordova.getActivity().getPackageManager();
+        Intent serviceIntent = new Intent(CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION);
+
+        List<ResolveInfo> resolvedServiceList = pm.queryIntentServices(serviceIntent, 0);
+        if (resolvedServiceList == null || resolvedServiceList.isEmpty()) {
+            Log.d(LOG_TAG, "service list is empty");
+            return null;
+        }
+
+        for (ResolveInfo info : resolvedServiceList) {
+            if (info.activityInfo != null) {
+                Log.d(LOG_TAG, "app: " + info.activityInfo.packageName);
+            } else {
+                Log.d(LOG_TAG, "no activity info");
+            }
+        }
+
+        ResolveInfo resolved = resolvedServiceList.get(0);
+        if (resolved == null) {
+            return null;
+        }
+
+        if (resolved.serviceInfo == null) {
+            return null;
+        }
+
+        return resolved.serviceInfo.packageName;
+  }
+
   private void isAvailable(CallbackContext callbackContext) {
     String browserPackage = findCustomTabBrowser();
-    Log.d(LOG_TAG, "browser package: " + browserPackage);
+    Log.d(LOG_TAG, "found browser package: " + browserPackage);
+
     callbackContext.sendPluginResult(new PluginResult(
         PluginResult.Status.OK,
         browserPackage != null));
@@ -122,6 +154,7 @@ public class BrowserTab extends CordovaPlugin {
     callbackContext.success();
   }
 
+  /*
   private String findCustomTabBrowser() {
     if (mFindCalled) {
       return mCustomTabsBrowser;
@@ -186,4 +219,5 @@ public class BrowserTab extends CordovaPlugin {
     serviceIntent.setPackage(packageName);
     return (pm.resolveService(serviceIntent, 0) != null);
   }
+  */
 }

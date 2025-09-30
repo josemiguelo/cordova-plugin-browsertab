@@ -19,6 +19,13 @@
     <preference name="CUSTOM_TAB_COLOR_RGB" default="#ffffff" />
   
     <platform name="android">
+        <config-file parent="/manifest" target="AndroidManifest.xml">
+            <queries>
+                <intent>
+                    <action android:name="android.support.customtabs.action.CustomTabsService" />
+                </intent>
+            </queries>
+        </config-file>
         <config-file parent="/*" target="res/xml/config.xml">
             <feature name="BrowserTab">
                 <param name="android-package"
