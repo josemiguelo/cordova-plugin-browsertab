@@ -76,6 +76,10 @@ public class BrowserTab extends CordovaPlugin {
   }
 
   private String findCustomTabBrowser() {
+        if (mFindCalled) {
+            return mCustomTabsBrowser;
+        }
+
         PackageManager pm = cordova.getActivity().getPackageManager();
         Intent serviceIntent = new Intent(CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION);
 
@@ -89,7 +93,10 @@ public class BrowserTab extends CordovaPlugin {
             return null;
         }
 
-        return resolved.serviceInfo.packageName;
+        mCustomTabsBrowser = resolved.serviceInfo.packageName;
+        mFindCalled = true;
+
+        return mCustomTabsBrowser;
   }
 
   private void isAvailable(CallbackContext callbackContext) {
